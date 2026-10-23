@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Seguimiento de Compromiso — CTUL Action Fund</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f8f9fa; --card: #ffffff; --text: #1a1a2e; --text-secondary: #6b7280;
+  --accent: #b23832; --accent-hover: #8f2c28; --accent-bright: #ff5147;
+  --success: #059669; --warning: #d97706; --danger: #dc2626;
+  --border: #e5e7eb; --input-bg: #f9fafb;
+  --shadow: 0 1px 3px rgba(0,0,0,0.1); --radius: 10px;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0f1117;--card:#1a1d2e;--text:#e5e7eb;--text-secondary:#9ca3af;--border:#2d3348;--input-bg:#232640;--shadow:0 1px 3px rgba(0,0,0,0.4);
+  }
+}
+:root[data-theme="dark"]{--bg:#0f1117;--card:#1a1d2e;--text:#e5e7eb;--text-secondary:#9ca3af;--border:#2d3348;--input-bg:#232640;--shadow:0 1px 3px rgba(0,0,0,0.4);}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6}
+*{box-sizing:border-box}
+.container{max-width:720px;margin:0 auto;padding:20px 16px 60px}
+.header{text-align:center;padding:24px 20px 18px;background:linear-gradient(135deg,#b23832,#d44a3a);color:white;border-radius:var(--radius);margin-bottom:24px}
+.header h1{margin:12px 0 4px;font-size:1.4rem;font-weight:700}
+.header p{margin:0;opacity:0.85;font-size:0.9rem}
+.section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 20px;margin-bottom:16px;box-shadow:var(--shadow);border-top:3px solid var(--accent)}
+.section-title{font-size:1.1rem;font-weight:700;margin:0 0 4px;color:var(--accent)}
+.section-subtitle{font-size:0.85rem;color:var(--text-secondary);margin:0 0 16px}
+label.field-label{display:block;font-size:0.85rem;font-weight:600;margin-bottom:4px;color:var(--text)}
+input[type="text"],input[type="email"],input[type="tel"],input[type="date"],input[type="time"],select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-size:0.95rem;font-family:var(--font);background:var(--input-bg);color:var(--text);margin-bottom:14px;transition:border-color 0.2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(178,56,50,0.2)}
+textarea{resize:vertical;min-height:80px}
+.option-group{margin-bottom:14px}
+.option-group .option{display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:6px;border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.15s;font-size:0.95rem}
+.option-group .option:hover{border-color:var(--accent);background:rgba(178,56,50,0.04)}
+.option-group .option.selected{border-color:var(--accent);background:rgba(178,56,50,0.08)}
+.option-group .option input{margin:0;accent-color:var(--accent)}
+.decision-box{background:rgba(178,56,50,0.06);border:1px solid rgba(178,56,50,0.2);border-radius:8px;padding:16px;margin:0 0 14px;display:none}
+.decision-box.visible{display:block}
+.btn-primary{width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:1rem;font-weight:700;font-family:var(--font);cursor:pointer;transition:background 0.2s}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+.status-msg{text-align:center;padding:14px;border-radius:8px;margin-top:16px;font-weight:600;font-size:0.95rem;display:none}
+.status-msg.success{display:block;background:rgba(5,150,105,0.1);color:var(--success)}
+.status-msg.error{display:block;background:rgba(220,38,38,0.1);color:var(--danger)}
+.status-msg.loading{display:block;background:rgba(178,56,50,0.1);color:var(--accent)}
+.progress-bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:100;background:var(--card);padding:8px 16px;border-bottom:1px solid var(--border)}
+.progress-track{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:2px;width:0%;transition:width 0.4s ease}
+.progress-text{font-size:0.75rem;color:var(--text-secondary);text-align:center;margin-top:4px}
+</style>
+</head>
+<body>
+
+<div class="progress-bar">
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-text" id="progressText"></div>
+</div>
+
+<div class="container">
+
+<div class="header">
+  <img src="CTUL_FDA_LOGO_RED_02.svg" alt="CTUL Action Fund" style="height:80px;border-radius:8px;" onerror="this.style.display='none'">
+  <h1>Seguimiento de Compromiso</h1>
+  <p style="opacity:0.85">CTUL Action Fund</p>
+  <p style="font-size:0.8rem;opacity:0.7;margin-top:4px">Formulario de seguimiento de compromisos del miembro</p>
+</div>
+
+<!-- SECTION 1: Contact -->
+<div class="section" data-section="1">
+  <div class="section-title">📞 Contacto</div>
+  <div class="section-subtitle">Estado de la llamada con el miembro</div>
+
+  <label class="field-label">¿Habló usted con la persona?</label>
+  <div class="option-group" id="spokeGroup">
+    <label class="option" onclick="selectRadio(this,'spokeGroup');handleSpoke('Si')"><input type="radio" name="spoke" value="Sí"> Sí</label>
+    <label class="option" onclick="selectRadio(this,'spokeGroup');handleSpoke('No')"><input type="radio" name="spoke" value="No"> No</label>
+  </div>
+
+  <div class="decision-box" id="spokeNoBox">
+    <label class="field-label">Si quiere que le llamemos más tarde, ¿cuándo debemos llamarlos?</label>
+    <input type="text" id="whenCall" placeholder="ej. Mañana por la tarde, el lunes...">
+  </div>
+</div>
+
+<!-- SECTION 2: Member Info -->
+<div class="section" data-section="2">
+  <div class="section-title">👤 Información del Miembro</div>
+  <div class="section-subtitle">Identificar al miembro para el seguimiento</div>
+  <label class="field-label">Nombre Completo del Miembro</label>
+  <input type="text" id="memberName" placeholder="Nombre y apellido">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div><label class="field-label">Fecha de Seguimiento</label><input type="date" id="followupDate"></div>
+    <div><label class="field-label">Nombre del Organizador</label><input type="text" id="organizerName" placeholder="Tu nombre"></div>
+  </div>
+</div>
+
+<!-- SECTION 3: Compromiso completado -->
+<div class="section" data-section="3">
+  <div class="section-title">📋 Compromiso del Miembro</div>
+  <div class="section-subtitle">Estado del compromiso acordado anteriormente</div>
+
+  <label class="field-label">¿El miembro ha completado su compromiso?</label>
+  <div class="option-group" id="completedGroup">
+    <label class="option" onclick="selectRadio(this,'completedGroup');handleCompleted('Si')"><input type="radio" name="completed" value="Sí"> Sí</label>
+    <label class="option" onclick="selectRadio(this,'completedGroup');handleCompleted('No')"><input type="radio" name="completed" value="No"> No</label>
+  </div>
+
+  <div class="decision-box" id="completedNoBox">
+    <label class="field-label">Si el miembro no ha completado su compromiso, ¿cuándo va a cumplirlo?</label>
+    <input type="text" id="whenComplete" placeholder="ej. La próxima semana, antes del viernes...">
+  </div>
+
+  <label class="field-label" style="margin-top:8px">Escribe algunas líneas sobre las barreras y éxitos que el miembro tenía en sus conversaciones</label>
+  <textarea id="barriersSuccesses" rows="3" placeholder="ej. Le fue difícil convencer a su vecino, pero logró hablar con 2 compañeros..."></textarea>
+</div>
+
+<!-- SECTION 4: Hablar con más personas -->
+<div class="section" data-section="4">
+  <div class="section-title">💬 Difusión</div>
+  <div class="section-subtitle">Compromiso de hablar con otras personas</div>
+
+  <label class="field-label">¿El miembro se ha comprometido a hablar con más personas? ¿Quiénes y cuándo?</label>
+  <textarea id="talkToOthers" rows="3" placeholder="ej. Va a hablar con 3 compañeros de trabajo esta semana..."></textarea>
+</div>
+
+<!-- SECTION 4: Guión para votantes -->
+<div class="section" data-section="5">
+  <div class="section-title">📝 Guión para Votantes</div>
+  <div class="section-subtitle">Recursos que necesita el miembro</div>
+
+  <label class="field-label">¿Necesita el miembro un guión para votantes?</label>
+  <div class="option-group" id="scriptGroup">
+    <label class="option" onclick="selectRadio(this,'scriptGroup')"><input type="radio" name="needsScript" value="Sí"> Sí</label>
+    <label class="option" onclick="selectRadio(this,'scriptGroup')"><input type="radio" name="needsScript" value="No"> No</label>
+  </div>
+</div>
+
+<!-- SECTION 5: Eventos de votar temprano -->
+<div class="section" data-section="6">
+  <div class="section-title">🗳 Eventos de Votar Temprano</div>
+  <div class="section-subtitle">¿Puede el miembro presenciar uno de los eventos?</div>
+
+  <label class="field-label">¿Puede el miembro presenciar uno de los eventos de votar temprano?</label>
+  <div class="option-group" id="eventGroup">
+    <label class="option" onclick="selectRadio(this,'eventGroup')"><input type="radio" name="earlyVoteEvent" value="Jueves 29 Oct 11:00 AM"> 📅 Jueves, 29 de Octubre, a las 11:00 AM</label>
+    <label class="option" onclick="selectRadio(this,'eventGroup')"><input type="radio" name="earlyVoteEvent" value="Domingo 1 Nov 1:30 PM"> 📅 Domingo, 1 de Noviembre, a las 1:30 PM</label>
+    <label class="option" onclick="selectRadio(this,'eventGroup')"><input type="radio" name="earlyVoteEvent" value="No puede asistir"> No puede asistir</label>
+  </div>
+</div>
+
+<!-- SECTION 6: Notes -->
+<div class="section" data-section="7">
+  <div class="section-title">📝 Notas Adicionales</div>
+  <div class="section-subtitle">Cualquier otra información relevante</div>
+  <label class="field-label">Notas / Detalles de Seguimiento</label>
+  <textarea id="notes" rows="4" placeholder="Notas adicionales sobre la conversación, seguimiento necesario..."></textarea>
+</div>
+
+<button class="btn-primary" id="submitBtn" onclick="submitForm()">Enviar Seguimiento</button>
+<div class="status-msg" id="statusMsg"></div>
+
+<div style="text-align:center;margin-top:32px;padding:24px 16px;border-top:2px solid var(--accent);opacity:0.7;">
+  <p style="font-size:0.75rem;color:var(--text-secondary);margin:8px 0 0;">CTUL Action Fund</p>
+  <p style="font-size:0.7rem;color:var(--text-secondary);margin:4px 0 0;">3715 Chicago Ave, Minneapolis, MN 55407</p>
+</div>
+
+</div>
+
+<script>
+// ── Config (same org) ──
+const CONFIG = {
+  pat: 'patBLHOUpOwDOfpGl.6759b9e13dc3aa57ca79ba917ac113b7a3002c026d723fc2ec2ae50425a67426',
+  baseId: 'appwFPvKIZdQbbqeq',
+  tableName: 'Seguimiento' // ← Update this to your actual Airtable table name
+};
+
+// ── UI ──
+function selectRadio(el, groupId) {
+  document.getElementById(groupId).querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected'); el.querySelector('input').checked = true;
+  updateProgress();
+}
+
+function handleSpoke(v) {
+  document.getElementById('spokeNoBox').classList.toggle('visible', v === 'No');
+}
+
+function handleCompleted(v) {
+  document.getElementById('completedNoBox').classList.toggle('visible', v === 'No');
+}
+
+function getRadioValue(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : null;
+}
+
+function updateProgress() {
+  const sections = document.querySelectorAll('[data-section]');
+  let filled = 0;
+  sections.forEach(s => {
+    const inputs = s.querySelectorAll('input:not([type=checkbox]):not([type=radio]), textarea');
+    const radios = s.querySelectorAll('input[type=radio]:checked');
+    if ((inputs.length && Array.from(inputs).some(i => i.value.trim())) || radios.length) filled++;
+  });
+  const pct = Math.round((filled / sections.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = filled + ' de ' + sections.length + ' secciones';
+}
+
+async function submitForm() {
+  const btn = document.getElementById('submitBtn');
+  const status = document.getElementById('statusMsg');
+
+  const memberName = document.getElementById('memberName').value.trim();
+  if (!memberName) { status.className = 'status-msg error'; status.textContent = '⚠️ Por favor ingrese el nombre del miembro.'; return; }
+
+  btn.disabled = true; status.className = 'status-msg loading'; status.textContent = 'Enviando...';
+
+  const fields = {
+    "Habló con la Persona": getRadioValue('spoke'),
+    "Cuándo Llamar": document.getElementById('whenCall').value.trim(),
+    "Nombre del Miembro": memberName,
+    "Fecha de Seguimiento": document.getElementById('followupDate').value || new Date().toISOString().split('T')[0],
+    "Nombre del Organizador": document.getElementById('organizerName').value.trim(),
+    "Compromiso Completado": getRadioValue('completed'),
+    "Cuándo Completará": document.getElementById('whenComplete').value.trim(),
+    "Barreras y Éxitos": document.getElementById('barriersSuccesses').value.trim(),
+    "Hablar con Más Personas": document.getElementById('talkToOthers').value.trim(),
+    "Necesita Guión": getRadioValue('needsScript'),
+    "Evento de Votar Temprano": getRadioValue('earlyVoteEvent'),
+    "Notas": document.getElementById('notes').value.trim(),
+    "Form Submitted At": new Date().toISOString(),
+  };
+
+  // Remove empty fields
+  for (const [key, val] of Object.entries(fields)) {
+    if (val === null || val === undefined || val === '') delete fields[key];
+  }
+
+  try {
+    const res = await fetch(`https://api.airtable.com/v0/${CONFIG.baseId}/${encodeURIComponent(CONFIG.tableName)}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${CONFIG.pat}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ records: [{ fields }] }),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    status.className = 'status-msg success';
+    status.textContent = `✅ ${memberName} — enviado correctamente`;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => { if (confirm('¿Limpiar formulario para el siguiente miembro?')) resetForm(); }, 1500);
+  } catch (err) {
+    status.className = 'status-msg error';
+    status.textContent = `❌ ${err.message.slice(0, 200)}`;
+  }
+  btn.disabled = false;
+}
+
+function resetForm() {
+  document.querySelectorAll('input[type="text"],input[type="date"],textarea').forEach(el => el.value = '');
+  document.querySelectorAll('input[type="radio"]').forEach(el => el.checked = false);
+  document.querySelectorAll('.option.selected').forEach(el => el.classList.remove('selected'));
+  document.getElementById('spokeNoBox').classList.remove('visible');
+  document.getElementById('completedNoBox').classList.remove('visible');
+  document.getElementById('statusMsg').className = 'status-msg';
+  document.getElementById('followupDate').value = new Date().toISOString().split('T')[0];
+  updateProgress();
+}
+
+// Init
+document.getElementById('followupDate').value = new Date().toISOString().split('T')[0];
+updateProgress();
+</script>
+</body>
+</html>
